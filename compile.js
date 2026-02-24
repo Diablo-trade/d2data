@@ -392,7 +392,7 @@ const fs = require('fs');
     let precalc = {}, total = 0;
   
     atom.forEach((itc, i) => {
-      let rarity = full.itemtypes[items[itc].type].Rarity | 0;
+      let rarity = items[itc].rarity | 0;
       total += rarity;
       atom[i] = [itc, rarity];
     });
