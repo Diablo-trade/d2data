@@ -387,12 +387,18 @@ const fs = require('fs');
       atomic[type + c] = atomic[type + c] || [];
     });
   }
+
+  /**
+   * "For those treasure classes generated off the item type table, the probability value is the value in the 'rarity' column (badly named thus)."
+   *
+   * @see https://d2mods.info/forum/kb/viewarticle?a=410
+   */
   
   atomic.forEach((atom, atomName) => {
     let precalc = {}, total = 0;
   
     atom.forEach((itc, i) => {
-      let rarity = items[itc].rarity | 0;
+      let rarity = full.itemtypes[items[itc].type].Rarity | 0;
       total += rarity;
       atom[i] = [itc, rarity];
     });
