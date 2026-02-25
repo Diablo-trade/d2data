@@ -1,0 +1,145 @@
+abow12	
+abow15	
+abow18	am1	1
+abow21	
+abow24	
+abow27	am2	1
+abow3	
+abow30	
+abow33	
+abow36	
+abow39	am6	1
+abow42	
+abow45	
+abow48	am7	1
+abow51	
+abow54	amb	1
+abow57	
+abow6	
+abow60	
+abow63	
+abow66	
+abow69	
+abow72	
+abow75	
+abow78	amc	1
+abow81	
+abow84	
+abow87	
+abow9	
+armo12	hlm	3	lrg	3	mbl	3	mbt	3	mgl	3	rng	3	spk	3
+armo15	chn	3	fhl	3	kit	3	scl	3
+armo18	ba3	1	brs	3	dr3	1	ne3	1	pa3	1
+armo21	ba4	1	bsh	3	dr4	1	msk	3	ne4	1	pa4	1	spl	3	tbl	3	tbt	3	tgl	3
+armo24	ba5	1	bhm	3	ci0	3	dr5	1	ghm	3	ne5	1	pa5	1	plt	3	tow	3
+armo27	hbl	3	hbt	3	hgl	3
+armo3	buc	3	cap	3	lbl	3	lbt	3	lea	3	lgl	3	qui	3
+armo30	crn	3	fld	3	gts	3
+armo33	ba6	1	gth	3	ne6	1	xlg	3
+armo36	dr6	1	ltp	3	pa6	1	xap	3	xea	3	xlb	3	xuc	3	xui	3	zlb	3
+armo39	ba7	1	ful	3	ne7	1	xkp	3	xla	3	xml	3	xvb	3	xvg	3	zvb	3
+armo42	aar	3	dr7	1	pa7	1	xlm	3	xng	3	xpk	3	xrg	3	xtu	3
+armo45	ba8	1	ne8	1	xcl	3	xhl	3	xhn	3	xit	3	xmb	3	xmg	3	zmb	3
+armo48	dr8	1	pa8	1	xrs	3	xsh	3	xsk	3
+armo51	ba9	1	dr9	1	ne9	1	pa9	1	xh9	3	xhm	3	xow	3	xpl	3	xtb	3	xtg	3	ztb	3
+armo54	baa	1	ci1	3	nea	1	uhl	3	xhb	3	xhg	3	xlt	3	zhb	3
+armo57	dra	1	paa	1	ulg	3	xld	3	xrn	3	xts	3
+armo6	ba1	1	dr1	1	hla	3	ne1	1	pa1	1	skp	3	sml	3
+armo60	bab	1	neb	1	uap	3	ulb	3	uuc	3	xth	3	xtp	3
+armo63	drb	1	pab	1	uhn	3	ukp	3	ulc	3	uml	3	uvg	3	xul	3
+armo66	bac	1	ned	1	urg	3	uui	3	uvb	3	xar	3
+armo69	drc	1	neg	1	uea	3	ula	3	ulm	3	umg	3	upk	3	uvc	3
+armo72	ci2	3	pac	1	uit	3	umb	3	ung	3	utu	3
+armo75	bad	1	pad	1	ucl	3	umc	3	urs	3	usk	3
+armo78	drd	1	ult	3	upl	3	ush	3	utg	3
+armo81	bae	1	nee	1	uhm	3	uld	3	uow	3	utb	3
+armo84	dre	1	pae	1	uh9	3	utc	3	uth	3	utp	3	uts	3	uul	3
+armo87	baf	1	ci3	3	drf	1	nef	1	paf	1	uar	3	uhb	3	uhc	3	uhg	3	urn	3
+armo9	ba2	1	dr2	1	ne2	1	pa2	1	stu	3	vbl	3	vbt	3	vgl	3
+bow12	cbw	3
+bow15	
+bow18	am1	1	sbb	3
+bow21	
+bow24	lbb	3
+bow27	am2	1	swb	3
+bow3	sbw	3
+bow30	8sb	3
+bow33	8hb	3	lwb	3
+bow36	8lb	3
+bow39	8cb	3	am6	1
+bow42	
+bow45	8s8	3
+bow48	8l8	3	am7	1
+bow51	8sw	3
+bow54	8lw	3	amb	1
+bow57	6sb	3
+bow6	hbw	3
+bow60	6hb	3
+bow63	6lb	3
+bow66	
+bow69	6cb	3
+bow72	6s7	3
+bow75	
+bow78	6l7	3	amc	1
+bow81	6sw	3
+bow84	
+bow87	6lw	3
+bow9	lbw	3
+mele12	2hs	3	axf	2	bax	3	crs	3	cst	1	flc	3	pil	3	vou	3	ywn	1
+mele15	2ax	3	bkf	3	bsd	3	ces	2	gsc	1	mst	3	scy	3	ssp	3
+mele18	am3	1	bal	3	brn	3	bst	1	btx	3	bwn	1	clm	3	clw	2	kri	3
+mele21	btl	2	fla	3	gis	3	lsd	3	mau	3	mpi	3	pax	3	spt	3	wsp	1
+mele24	am5	1	bld	3	bsw	3	gax	3	glv	3	pik	3	skr	2	wst	1
+mele27	am4	1	flb	3	gix	3	gwn	1	wax	3	whm	3	wsd	3
+mele3	clb	3	dgr	3	hax	3	jav	3	ktr	2	scp	1	ssd	3	sst	1	tkf	3	wnd	1
+mele30	8ss	1	9ar	2	9cl	3	9ja	3	9ss	3	hal	3	tsp	3
+mele33	9b7	3	9dg	3	9ha	3	9sc	1	9sp	3	9sr	3	9tk	3	9wb	2	9wn	1	gma	3	gsd	3
+mele36	8ls	1	9ax	3	9di	3	9la	3	9ma	3	9pa	3	9sb	3	9ta	3	9tr	3	9xf	2	ama	1	wsc	3
+mele39	8cs	1	92a	3	92h	3	9ba	3	9bk	3	9cr	3	9fc	3	9mt	3	9pi	3	9vo	3	9yw	1
+mele42	8bs	1	9b8	3	9br	3	9bs	3	9bt	3	9cm	3	9cs	2	9kr	3	9qs	1	9s8	3	9s9	3
+mele45	9bw	1	9fl	3	9gs	3	9ls	3	9lw	2	9m9	3	9mp	3	9sm	3	9st	3	9ws	1	am8	1
+mele48	8ws	1	9b9	3	9bl	3	9ga	3	9gl	3	9p9	3	9wa	3	9wh	3
+mele51	9fb	3	9gi	3	9gw	1	9h9	3	9ts	3	9tw	2	9wd	3	am9	1
+mele54	7cl	3	7ha	3	7ja	3	9gd	3	9gm	3	9qr	2
+mele57	7la	3	7sp	3	7ss	3	7ta	3	7wn	1	9wc	3
+mele6	bar	3	lax	3	scm	3	spc	3	spr	3
+mele60	6ss	1	72h	3	7ar	2	7dg	3	7o7	3	7sr	3
+mele63	7ax	3	7ma	3	7pi	3	7sb	3	7sc	1	7sm	3	7wb	2	amd	1
+mele66	6ls	1	7ba	3	7cm	3	7tk	3	7tr	3	7vo	3	7yw	1	amf	1
+mele69	7fc	3	7m7	3	7xf	2
+mele72	72a	3	7di	3	7gs	3	7mt	3	7s7	3	7s8	3
+mele75	6cs	1	7br	3	7bt	3	7bw	1	7cr	3	7cs	2
+mele78	7b7	3	7bk	3	7bs	3	7fl	3	7lw	2	7qs	1
+mele81	7b8	3	7fb	3	7gl	3	7mp	3	7pa	3	7tw	2	ame	1
+mele84	6bs	1	7ga	3	7h7	3	7kr	3	7ls	3	7st	3	7wh	3
+mele87	6ws	1	7bl	3	7gd	3	7gi	3	7gm	3	7gw	1	7p7	3	7qr	2	7ts	3	7wa	3	7wc	3	7wd	3	7ws	1
+mele9	axe	3	dir	3	lst	1	mac	3	sbr	3	tax	3	tri	3	wrb	2
+weap12	2hs	3	axf	2	bax	3	cbw	3	crs	3	cst	1	flc	3	ob3	1	pil	3	vou	3	ywn	1
+weap15	2ax	3	bkf	3	bsd	3	ces	2	gsc	1	mst	3	mxb	3	scy	3	ssp	3
+weap18	am1	1	am3	1	bal	3	brn	3	bst	1	btx	3	bwn	1	clm	3	clw	2	kri	3	ob4	1	sbb	3
+weap21	btl	2	fla	3	gis	3	lsd	3	mau	3	mpi	3	pax	3	spt	3	wsp	1
+weap24	am5	1	bld	3	bsw	3	gax	3	glv	3	hxb	3	lbb	3	ob5	1	pik	3	skr	2	wst	1
+weap27	am2	1	am4	1	flb	3	gix	3	gwn	1	swb	3	wax	3	whm	3	wsd	3
+weap3	clb	3	dgr	3	hax	3	jav	3	ktr	2	ob1	1	sbw	3	scp	1	ssd	3	sst	1	tkf	3	wnd	1
+weap30	8sb	3	8ss	1	9ar	2	9cl	3	9ja	3	9ss	3	hal	3	tsp	3
+weap33	8hb	3	9b7	3	9dg	3	9ha	3	9sc	1	9sp	3	9sr	3	9tk	3	9wb	2	9wn	1	gma	3	gsd	3	lwb	3	ob6	1	rxb	3
+weap36	8lb	3	8ls	1	8lx	3	9ax	3	9di	3	9la	3	9ma	3	9pa	3	9sb	3	9ta	3	9tr	3	9xf	2	ama	1	wsc	3
+weap39	8cb	3	8cs	1	92a	3	92h	3	9ba	3	9bk	3	9cr	3	9fc	3	9mt	3	9pi	3	9vo	3	9yw	1	am6	1	ob7	1
+weap42	8bs	1	8mx	3	9b8	3	9br	3	9bs	3	9bt	3	9cm	3	9cs	2	9kr	3	9qs	1	9s8	3	9s9	3	ob8	1
+weap45	8s8	3	9bw	1	9fl	3	9gs	3	9ls	3	9lw	2	9m9	3	9mp	3	9sm	3	9st	3	9ws	1	am8	1
+weap48	8hx	3	8l8	3	8ws	1	9b9	3	9bl	3	9ga	3	9gl	3	9p9	3	9wa	3	9wh	3	am7	1	ob9	1
+weap51	8sw	3	9fb	3	9gi	3	9gw	1	9h9	3	9ts	3	9tw	2	9wd	3	am9	1	oba	1
+weap54	7cl	3	7ha	3	7ja	3	8lw	3	8rx	3	9gd	3	9gm	3	9qr	2	amb	1
+weap57	6lx	3	6sb	3	7la	3	7sp	3	7ss	3	7ta	3	7wn	1	9wc	3
+weap6	bar	3	hbw	3	lax	3	lxb	3	scm	3	spc	3	spr	3
+weap60	6hb	3	6ss	1	72h	3	7ar	2	7dg	3	7o7	3	7sr	3	obb	1
+weap63	6lb	3	7ax	3	7ma	3	7pi	3	7sb	3	7sc	1	7sm	3	7wb	2	amd	1
+weap66	6ls	1	7ba	3	7cm	3	7tk	3	7tr	3	7vo	3	7yw	1	amf	1
+weap69	6cb	3	6mx	3	7fc	3	7m7	3	7xf	2	obc	1
+weap72	6s7	3	72a	3	7di	3	7gs	3	7mt	3	7s7	3	7s8	3
+weap75	6cs	1	6hx	3	7br	3	7bt	3	7bw	1	7cr	3	7cs	2	obd	1
+weap78	6l7	3	7b7	3	7bk	3	7bs	3	7fl	3	7lw	2	7qs	1	amc	1
+weap81	6sw	3	7b8	3	7fb	3	7gl	3	7mp	3	7pa	3	7tw	2	ame	1
+weap84	6bs	1	6rx	3	7ga	3	7h7	3	7kr	3	7ls	3	7st	3	7wh	3	obe	1
+weap87	6lw	3	6ws	1	7bl	3	7gd	3	7gi	3	7gm	3	7gw	1	7p7	3	7qr	2	7ts	3	7wa	3	7wc	3	7wd	3	7ws	1	obf	1
+weap9	axe	3	dir	3	lbw	3	lst	1	mac	3	ob2	1	sbr	3	tax	3	tri	3	wrb	2

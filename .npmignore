@@ -20,3 +20,7 @@
 /json/base/.gitkeep
 /json/precalctc/.gitkeep
 /json/base/precalctc/.gitkeep
+dropsim.cpp
+dropsim
+a.out
+*.txt

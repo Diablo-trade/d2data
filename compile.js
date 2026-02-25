@@ -388,14 +388,15 @@ const fs = require('fs');
     });
   }
 
+  let atomicRatios = {};
+
   /**
    * "For those treasure classes generated off the item type table, the probability value is the value in the 'rarity' column (badly named thus)."
    *
    * @see https://d2mods.info/forum/kb/viewarticle?a=410
    */
-  
   atomic.forEach((atom, atomName) => {
-    let precalc = {}, total = 0;
+    let precalc = {}, precalcratios = {}, total = 0;
   
     atom.forEach((itc, i) => {
       let rarity = full.itemtypes[items[itc].type].Rarity | 0;
@@ -405,9 +406,11 @@ const fs = require('fs');
   
     atom.forEach(([itc, chance]) => {
       precalc[itc] = chance / total;
+      precalcratios[itc] = full.itemtypes[items[itc].type].Rarity | 0;
     });
   
     atomic[atomName] = precalc;
+    atomicRatios[atomName] = precalcratios;
   });
   
   full.atomic = atomic;
@@ -905,10 +908,12 @@ const fs = require('fs');
   
   fs.writeFileSync(outDir + 'items.json', JSON.stringify(items, null, ' '));
   fs.writeFileSync(outDir + 'atomic.json', JSON.stringify(keySort(atomic), null, ' '));
+  fs.writeFileSync(outDir === 'json/base/' ? 'atomicbase.txt' : 'atomic.txt', Object.entries(atomicRatios).sort((a, b) => a[0].localeCompare(b[0])).map(([key, value]) => {
+    return key + '\t' + Object.entries(value).sort((a, b) => a[0].localeCompare(b[0])).map(([itc, rarity]) => itc + '\t' + rarity).join('\t');
+  }).join('\n'));
   fs.writeFileSync(outDir + 'treasureclassgroupsex.json', JSON.stringify(groupsEx, null, ' '));
   fs.writeFileSync(outDir + 'monpopulationest.json', JSON.stringify(monpopulation, null, ' '));
   fs.writeFileSync(outDir + 'tcprecalc.json', JSON.stringify(tcprecalc, null, ' '));
   fs.writeFileSync(outDir + 'actprofile.json', JSON.stringify(actprofile, null, ' '));
   fs.writeFileSync(outDir + 'coldmasterybreakpoints.json', JSON.stringify(coldmasterybreakpoints, null, ' '));
 });
-
