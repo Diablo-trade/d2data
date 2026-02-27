@@ -189,7 +189,7 @@ void pick(std::string tcname, int magic, int rare, int set, int unique, std::vec
         pickAtomic(tcname, magic, rare, set, unique, drops);
         return;
     }
-    
+
     TC& tc = treasureClasses[tcname];
 
     magic = std::max(magic, tc.magic);
@@ -324,7 +324,7 @@ void populate(std::string tcname, int magic, int rare, int set, int unique, std:
         populateAtomic(tcname, magic, rare, set, unique, drops);
         return;
     }
-    
+
     TC& tc = treasureClasses[tcname];
 
     magic = std::max(magic, tc.magic);
@@ -383,7 +383,7 @@ std::string trim(const std::string& str) {
 // Main takes first parameter as treasure class name
 int main(int argc, char* argv[]) {
     if (argc < 2) {
-        std::cout << "Usage: " << argv[0] << " <treasure_class_name> <player_mod> <find_item_percent>\n";
+        std::cerr << "Usage: " << argv[0] << " <treasure_class_name> <player_mod> <find_item_percent>\n";
         return 1;
     }
 
@@ -408,13 +408,6 @@ int main(int argc, char* argv[]) {
     playermod = std::max(0L, playermod);
     playermod = std::min(8L, playermod);
 
-    if (playermod) {
-        std::cout << tcname << " [" << playermod << "]" << std::endl;
-    }
-    else {
-        std::cout << tcname << " [No NoDrop]" << std::endl;
-    }
-
     if (argc >= 4) {
         finditem = atoi(argv[3]);
     }
@@ -424,7 +417,7 @@ int main(int argc, char* argv[]) {
     // Open the treasure class file at: txt/treasureclassex.txt
     FILE* tex = fopen((txtDir + (BASETC ? "base/treasureclassex.txt" : "treasureclassex.txt")).c_str(), "r");
     if (!tex) {
-        std::cout << "Error: Could not open treasure class file\n";
+        std::cerr << "Error: Could not open treasure class file\n";
         return 1;
     }
 
@@ -562,26 +555,24 @@ int main(int argc, char* argv[]) {
     mindropcount /= thread_count;
 
     std::vector<std::thread> threads;
+    std::atomic<long> totalsims = 0;
 
     std::unordered_map<Drop, long> dropsToFind;
     populate(tcname, 0, 0, 0, 0, dropsToFind);
 
     for (int i = 0; i < thread_count; i++) {
-        threads.emplace_back([i, thread_count, &tcname, &dropsToFind, dropcycles, mindropcount, &simulationsPath]() {
+        threads.emplace_back([i, thread_count, &tcname, &dropsToFind, dropcycles, mindropcount, &simulationsPath, &totalsims]() {
             long totalruns = 0;
             long totalpicks = 0;
+
             std::unordered_map<Drop, long> totaldrops;
 
             for (const auto& drop : dropsToFind) {
                 totaldrops[drop.first] = 0;
             }
-                        
-            for (size_t seq = 0; true; seq++) {
-                long runs = 0;
-                long picks = 0;
-                std::unordered_map<Drop, long> drops;
 
-                for (int j = 0; j < dropcycles; j++) {
+            for (size_t seq = 0; true; seq++) {
+                for (long j = 0; j < dropcycles; j++) {
                     #ifdef DEBUG
                         std::cout << "Cycle start" << std::endl;
                         wait();
@@ -590,53 +581,12 @@ int main(int argc, char* argv[]) {
                     pick(tcname, 0, 0, 0, 0, rundrops);
 
                     for (const auto& drop : rundrops) {
-                        drops[drop]++;
                         totaldrops[drop]++;
                         totalpicks++;
-                        picks++;
                     }
 
                     totalruns++;
-                    runs++;
                 }
-
-                size_t fullseq = seq * thread_count + i;
-
-                // Write results to file as json with name: results-{timestamp}_{i}.json
-                // Each thread has a separate file based on `i` to avoid race conditions or write conflicts.
-                std::string filename = (BASETC ? simulationsPath + "base/" : simulationsPath) + tcname + " [" + std::to_string(playermod) + "][" + std::to_string(fullseq) + "].json";
-                std::ofstream out(filename);
-
-                out << "{\n";
-                out << "  \"tc\": \"" << tcname << "\",\n";
-                out << "  \"playermod\": " << playermod << ",\n";
-                out << "  \"seq\": " << fullseq << ",\n";
-                out << "  \"runs\": " << runs << ",\n";
-                out << "  \"picks\": " << picks << ",\n";
-                out << "  \"avgpicks\": " << std::fixed << std::setprecision(6) << (double)totalpicks / totalruns << ",\n";
-                out << "  \"drops\": [\n";
-                long count = 0;
-                for (const auto& drop : drops) {
-                    std::string escapedDrop = drop.first.name;
-                    // Escape backslashes and double quotes in the drop name
-                    size_t pos = 0;
-                    while ((pos = escapedDrop.find('\\', pos)) != std::string::npos) {
-                        escapedDrop.insert(pos, "\\");
-                        pos += 2; // Move past the escaped backslash
-                    }
-                    pos = 0;
-                    while ((pos = escapedDrop.find('\"', pos)) != std::string::npos) {
-                        escapedDrop.insert(pos, "\\");
-                        pos += 2; // Move past the escaped quote
-                    }
-                    out << "    [\"" + escapedDrop + "\", " << drop.second << ", " << drop.first.magic << ", " << drop.first.rare << ", " << drop.first.set << ", " << drop.first.unique << "]";
-                    if (++count < drops.size()) {
-                        out << ",";
-                    }
-                    out << "\n";
-                }
-                out << "  ]\n";
-                out << "}\n";
 
                 // Check if all items have at least mindropcount drops, and if so, break the loop to finish this thread's execution.
                 bool allAboveMin = true;
@@ -650,15 +600,54 @@ int main(int argc, char* argv[]) {
                 }
 
                 if (allAboveMin) {
+                    totalsims += totalruns;
                     break;
                 }
             }
+            
+            // Write results to file as json with name: results-{timestamp}_{i}.json
+            // Each thread has a separate file based on `i` to avoid race conditions or write conflicts.
+            std::string filename = (BASETC ? simulationsPath + "base/" : simulationsPath) + tcname + " [" + std::to_string(playermod) + "][" + std::to_string(i) + "].json";
+            std::ofstream out(filename);
+
+            out << "{\n";
+            out << "  \"tc\": \"" << tcname << "\",\n";
+            out << "  \"playermod\": " << playermod << ",\n";
+            out << "  \"seq\": " << i << ",\n";
+            out << "  \"runs\": " << totalruns << ",\n";
+            out << "  \"picks\": " << totalpicks << ",\n";
+            out << "  \"avgpicks\": " << std::fixed << std::setprecision(6) << (double)totalpicks / totalruns << ",\n";
+            out << "  \"drops\": [\n";
+            long count = 0;
+            for (const auto& drop : totaldrops) {
+                std::string escapedDrop = drop.first.name;
+                // Escape backslashes and double quotes in the drop name
+                size_t pos = 0;
+                while ((pos = escapedDrop.find('\\', pos)) != std::string::npos) {
+                    escapedDrop.insert(pos, "\\");
+                    pos += 2; // Move past the escaped backslash
+                }
+                pos = 0;
+                while ((pos = escapedDrop.find('\"', pos)) != std::string::npos) {
+                    escapedDrop.insert(pos, "\\");
+                    pos += 2; // Move past the escaped quote
+                }
+                out << "    [\"" + escapedDrop + "\", " << drop.second << ", " << drop.first.magic << ", " << drop.first.rare << ", " << drop.first.set << ", " << drop.first.unique << "]";
+                if (++count < totaldrops.size()) {
+                    out << ",";
+                }
+                out << "\n";
+            }
+            out << "  ]\n";
+            out << "}\n";
         });
     }
 
     for (int i = 0; i < thread_count; i++) {
         threads[i].join();
     }
+
+    std::cout << "{\"total\":" << totalsims.load() << "}" << std::endl;
 
     return 0;
 }

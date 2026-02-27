@@ -24,6 +24,8 @@ foreach ([
   'json/base/precalctc/' => ['simulations/base/', TREASURECLASSEXBASE, 'dropsimbase'],
 ] as $basepath => [$simulationpath, $treasureclassex, $simulator]) {
   print("Generating $basepath\n");
+  $statsfile = $basepath . '_stats.json';
+  $stats = file_exists($statsfile) ? json_decode(file_get_contents($statsfile), TRUE) : [];
 
   $allsimuglob = $simulationpath . '*.json';
 
@@ -57,14 +59,37 @@ foreach ([
       $tcindex = $tccount++;
       $tc_name_escaped = escapeshellarg($tc_name);
       $tcpercent = number_format($tcindex / $tcmax * 100, 2);
-      print("[$tcpercent%] ");
-      passthru("./$simulator $tc_name_escaped $dropmodifier");
+      print("[$tcpercent%] $tc_name [$dropmodifier]: ");
+      $start = microtime(true);
+      $result = exec("./$simulator $tc_name_escaped $dropmodifier");
+      $elapsed = (microtime(true) - $start);
+
+      if ($result) {
+        $result = json_decode($result, TRUE);
+
+        if (isset($result['total'])) {
+          $stats["$tc_name [$dropmodifier]"] = [
+            'total' => $result['total'],
+            'elapsed' => $elapsed,
+          ];
+
+          print($result['total'] . " in " . number_format($elapsed, 3) . " seconds" . PHP_EOL);
+        }
+      }
     }
+
+    $stats = [
+      'total' => array_sum(array_column($stats, 'total')),
+      'elapsed' => array_sum(array_column($stats, 'elapsed')),
+    ] + $stats;
+
+    file_put_contents($statsfile, json_encode((object) $stats, JSON_PRETTY_PRINT));
 
     $totalruns = 0;
 
     foreach (glob($simuglob) as $file) {
       $data = json_decode(file_get_contents($file), TRUE);
+
       if ($data['tc'] !== $tc_name) {
         throw new Exception("Expected TC $tc_name but got " . $data['tc']);
       }
@@ -76,12 +101,12 @@ foreach ([
       ) {
         continue;
       }
-  
+
       $playermod = $data['playermod'] - 1;
       $drops = $data['drops'];
       $precalc[$playermod] ??= [];
       $totalruns += $data['runs'];
-  
+
       if ($drops) {
         foreach ($drops as $entry) {
           [$item, $count, $unique, $set, $rare, $magic] = $entry;
@@ -100,7 +125,7 @@ foreach ([
         }
       }
     }
-  
+
     if ($precalc) {
       foreach ($precalc as $playermod => $entries) {
         $precalc[$playermod] = array_values($precalc[$playermod]);
@@ -115,7 +140,7 @@ foreach ([
           return $ret > 0 ? 1 : ($ret < 0 ? -1 : 0);
         });
       }
-    
+
       file_put_contents($filepath, json_encode($precalc, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
     }
   }
