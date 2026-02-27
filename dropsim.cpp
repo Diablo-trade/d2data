@@ -102,7 +102,10 @@ namespace std {
 
 std::unordered_map<std::string, AtomicTC> atomic;
 std::unordered_map<std::string, TC> treasureClasses;
-int playermod = 1;
+
+long playermod = 1;
+int finditem = 0;
+
 std::random_device rd;
 std::mt19937 gen(rd());
 
@@ -161,6 +164,10 @@ void pickAtomic(std::string tcname, int magic, int rare, int set, int unique, st
 }
 
 long calcNodrop(long e, long nd, long d) {
+    if (e < 1) {
+        return 0;
+    }
+
     double _e = (double)e, _nd = (double)nd, _d = (double)d;
     if (nd < 1) {
         return 0;
@@ -173,7 +180,7 @@ long calcNodrop(long e, long nd, long d) {
     return (long)(_d / (pow((_nd + _d) / nd, _e) - 1));
 }
 
-void pick(std::string tcname, int magic, int rare, int set, int unique, std::vector<Drop>& drops) {
+void pick(std::string tcname, int magic, int rare, int set, int unique, std::vector<Drop>& drops, int depth = 0) {
     if (drops.size() >= 6) {
         return;
     }
@@ -206,8 +213,27 @@ void pick(std::string tcname, int magic, int rare, int set, int unique, std::vec
         return;
     }
 
+    long nodrop = tc.nodrop;
+
+    if (depth == 0 && finditem > 0) {
+        std::uniform_int_distribution<long> dis(0, 100);
+        long finditemnum = dis(gen);
+
+        if (finditemnum >= finditem) {
+            #ifdef DEBUG
+                std::cout << "Find item failed" << std::endl;
+                wait();
+            #endif
+            return;
+        }
+
+        nodrop = 0;
+    }
+    else {
+        nodrop = calcNodrop(playermod, nodrop, tc.total);
+    }
+
     int picks = tc.picks > 0 ? tc.picks : -tc.picks;
-    long nodrop = calcNodrop(playermod, tc.nodrop, tc.total);
 
     #ifdef DEBUG
         std::cout << tc.name << " with " << picks << " " << (tc.picks > 0 ? "random" : "sequential") << " picks " << std::endl;
@@ -243,7 +269,7 @@ void pick(std::string tcname, int magic, int rare, int set, int unique, std::vec
                             std::cout << item.name << " picked" << std::endl;
                             wait();
                         #endif
-                        pick(item.name, magic, rare, set, unique, drops);
+                        pick(item.name, magic, rare, set, unique, drops, depth + 1);
                         break;
                     }
 
@@ -267,7 +293,7 @@ void pick(std::string tcname, int magic, int rare, int set, int unique, std::vec
                     std::cout << tc.name << " picked" << std::endl;
                     wait();
                 #endif
-                pick(item.name, magic, rare, set, unique, drops);
+                pick(item.name, magic, rare, set, unique, drops, depth + 1);
                 picks--;
             }
         }
@@ -357,7 +383,7 @@ std::string trim(const std::string& str) {
 // Main takes first parameter as treasure class name
 int main(int argc, char* argv[]) {
     if (argc < 2) {
-        std::cout << "Usage: " << argv[0] << " <treasure_class_name> <player_mod> <drop_cycles>\n";
+        std::cout << "Usage: " << argv[0] << " <treasure_class_name> <player_mod> <find_item_percent>\n";
         return 1;
     }
 
@@ -374,23 +400,26 @@ int main(int argc, char* argv[]) {
     std::string simulationsPath = realpath(path + "simulations") + DIRECTORY_SEPARATOR_STRING;
 
     std::string tcname = argv[1];
-    int dropcycles = 300000;
 
     if (argc >= 3) {
         playermod = atoi(argv[2]);
     }
 
-    playermod = std::max(1, playermod);
-    playermod = std::min(8, playermod);
+    playermod = std::max(0L, playermod);
+    playermod = std::min(8L, playermod);
 
-    if (argc >= 4) {
-        dropcycles = atoi(argv[3]);
+    if (playermod) {
+        std::cout << tcname << " [" << playermod << "]" << std::endl;
+    }
+    else {
+        std::cout << tcname << " [No NoDrop]" << std::endl;
     }
 
-    dropcycles = std::max(1, dropcycles);
-    dropcycles = std::min(20000000, dropcycles);
+    if (argc >= 4) {
+        finditem = atoi(argv[3]);
+    }
 
-    std::cout << tcname << " [" << playermod << "]" << std::endl;
+    int dropcycles = 300000;
 
     // Open the treasure class file at: txt/treasureclassex.txt
     FILE* tex = fopen((txtDir + (BASETC ? "base/treasureclassex.txt" : "treasureclassex.txt")).c_str(), "r");
