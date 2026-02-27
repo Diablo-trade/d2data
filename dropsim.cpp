@@ -147,7 +147,7 @@ void pickAtomic(std::string tcname, int magic, int rare, int set, int unique, st
     int picknum = dis(gen);
 
     for (auto item : atc.items) {
-        if (picknum < item.prob) {
+        if (item.prob > 0 && picknum < item.prob) {
             drops.push_back({item.name, magic, rare, set, unique});
             #ifdef DEBUG
                 std::cout << "Added " << item.name << std::endl;
@@ -237,7 +237,7 @@ void pick(std::string tcname, int magic, int rare, int set, int unique, std::vec
             }
 
             for (auto item : tc.items) {
-                if (item.prob) {
+                if (item.prob > 0) {
                     if (picknum < item.prob) {
                         #ifdef DEBUG
                             std::cout << item.name << " picked" << std::endl;
@@ -274,8 +274,84 @@ void pick(std::string tcname, int magic, int rare, int set, int unique, std::vec
     }
 }
 
+void populateAtomic(std::string tcname, int magic, int rare, int set, int unique, std::unordered_map<Drop, long>& drops) {
+    if (atomic.find(tcname) == atomic.end()) {
+        drops[{tcname, magic, rare, set, unique}] = 0;
+        return;
+    }
+
+    AtomicTC& atc = atomic[tcname];
+
+    if (atc.total == 0) {
+        return;
+    }
+
+    for (auto item : atc.items) {
+        if (item.prob > 0) {
+            drops[{item.name, magic, rare, set, unique}] = 0;
+        }
+    }
+}
+
+void populate(std::string tcname, int magic, int rare, int set, int unique, std::unordered_map<Drop, long>& drops) {
+    if (treasureClasses.find(tcname) == treasureClasses.end()) {
+        populateAtomic(tcname, magic, rare, set, unique, drops);
+        return;
+    }
+    
+    TC& tc = treasureClasses[tcname];
+
+    magic = std::max(magic, tc.magic);
+    rare = std::max(rare, tc.rare);
+    set = std::max(set, tc.set);
+    unique = std::max(unique, tc.unique);
+
+    if (tc.picks == 0) {
+        return;
+    }
+
+    if (tc.total == 0) {
+        return;
+    }
+
+    if (tc.picks > 0) {
+        for (auto item : tc.items) {
+            if (item.prob > 0) {
+                populate(item.name, magic, rare, set, unique, drops);
+            }
+        }
+    }
+    else {
+        int picks = -tc.picks;
+
+        for (auto item : tc.items) {
+            for (int i = 0; i < item.prob; i++) {
+                if (picks <= 0) {
+                    return;
+                }
+
+                populate(item.name, magic, rare, set, unique, drops);
+                picks--;
+            }
+        }
+    }
+}
+
 std::string realpath(std::string path) {
     return std::filesystem::canonical(std::filesystem::absolute(path)).string();
+}
+
+/**
+ * Trim leading and trailing whitespace from a string.
+ * This is a simple implementation and may not cover all Unicode whitespace characters.
+ */
+std::string trim(const std::string& str) {
+    size_t first = str.find_first_not_of(" \t\n\r\f\v");
+    if (first == std::string::npos) {
+        return ""; // String is all whitespace
+    }
+    size_t last = str.find_last_not_of(" \t\n\r\f\v");
+    return str.substr(first, (last - first + 1));
 }
 
 // Main takes first parameter as treasure class name
@@ -298,7 +374,7 @@ int main(int argc, char* argv[]) {
     std::string simulationsPath = realpath(path + "simulations") + DIRECTORY_SEPARATOR_STRING;
 
     std::string tcname = argv[1];
-    int dropcycles = 100000;
+    int dropcycles = 300000;
 
     if (argc >= 3) {
         playermod = atoi(argv[2]);
@@ -312,7 +388,7 @@ int main(int argc, char* argv[]) {
     }
 
     dropcycles = std::max(1, dropcycles);
-    dropcycles = std::min(1000000, dropcycles);
+    dropcycles = std::min(20000000, dropcycles);
 
     std::cout << tcname << " [" << playermod << "]" << std::endl;
 
@@ -338,7 +414,7 @@ int main(int argc, char* argv[]) {
         if (tokens.empty()) continue;
 
         TC tc;
-        tc.name = tokens[0];
+        tc.name = trim(tokens[0]);
 
         if (tokens.size() > 1) {
             tc.group = atoi(tokens[1].c_str());
@@ -409,7 +485,7 @@ int main(int argc, char* argv[]) {
         if (tokens.empty()) continue;
 
         AtomicTC atc;
-        std::string tcBaseName = tokens[0];
+        std::string tcBaseName = trim(tokens[0]);
         atomic[tcBaseName] = atc;
 
         for (long i = 1; i < tokens.size() - 1; i += 2) {
@@ -433,7 +509,7 @@ int main(int argc, char* argv[]) {
     #else
         // Get CPU count.
         int thread_count = std::thread::hardware_concurrency(); // Use 2/3 of available threads to avoid overloading the system
-        thread_count = std::max(1, thread_count - 4);
+        thread_count = std::max(1, thread_count - 6);
     #endif
 
     if (thread_count < 1) {
@@ -446,7 +522,7 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    long mindropcount = thread_count;
+    long mindropcount = 676;
 
     if (argc >= 5) {
         mindropcount = atoi(argv[4]);
@@ -454,13 +530,22 @@ int main(int argc, char* argv[]) {
 
     mindropcount = std::max(1L, mindropcount);
 
+    mindropcount /= thread_count;
+
     std::vector<std::thread> threads;
 
+    std::unordered_map<Drop, long> dropsToFind;
+    populate(tcname, 0, 0, 0, 0, dropsToFind);
+
     for (int i = 0; i < thread_count; i++) {
-        threads.emplace_back([i, thread_count, &tcname, dropcycles, mindropcount, &simulationsPath]() {
+        threads.emplace_back([i, thread_count, &tcname, &dropsToFind, dropcycles, mindropcount, &simulationsPath]() {
             long totalruns = 0;
             long totalpicks = 0;
             std::unordered_map<Drop, long> totaldrops;
+
+            for (const auto& drop : dropsToFind) {
+                totaldrops[drop.first] = 0;
+            }
                         
             for (size_t seq = 0; true; seq++) {
                 long runs = 0;
@@ -524,20 +609,19 @@ int main(int argc, char* argv[]) {
                 out << "  ]\n";
                 out << "}\n";
 
-                if (seq * dropcycles >= 400000) {
-                    // Check if all items have at least mindropcount drops, and if so, break the loop to finish this thread's execution.
-                    bool allAboveMin = true;
-                    for (const auto& drop : totaldrops) {
-                        if (drop.second < mindropcount) {
-                            allAboveMin = false;
-                            printf("Thread %d: Item \'%s\' has %ld drops left...\n", i, drop.first.name.c_str(), mindropcount - drop.second);
-                            break;
-                        }
-                    }
-    
-                    if (allAboveMin) {
+                // Check if all items have at least mindropcount drops, and if so, break the loop to finish this thread's execution.
+                bool allAboveMin = true;
+                for (const auto& drop : totaldrops) {
+                    long dropsLeft = mindropcount - drop.second;
+
+                    if (dropsLeft > 0) {
+                        allAboveMin = false;
                         break;
                     }
+                }
+
+                if (allAboveMin) {
+                    break;
                 }
             }
         });

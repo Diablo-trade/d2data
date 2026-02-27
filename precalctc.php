@@ -29,6 +29,9 @@ foreach ([
 
   $index = [];
 
+  $tccount = 0;
+  $tcmax = count($treasureclassex) * 8;
+
   foreach ($treasureclassex as $tc_name => $tc) {
     $filename = preg_replace('/[^a-z0-9() -_]\+/i', '_', $tc_name);
     $filename = trim($filename, '_- ');
@@ -36,6 +39,7 @@ foreach ([
     $filepath = $basepath . $filename . ".json";
 
     if (file_exists($filepath)) {
+      $tccount += 8;
       continue;
     }
 
@@ -50,7 +54,10 @@ foreach ([
     }
 
     foreach ([1, 2, 3, 4, 5, 6, 7, 8] as $dropmodifier) {
+      $tcindex = $tccount++;
       $tc_name_escaped = escapeshellarg($tc_name);
+      $tcpercent = number_format($tcindex / $tcmax * 100, 2);
+      print("[$tcpercent%] ");
       passthru("./$simulator $tc_name_escaped $dropmodifier");
     }
 
