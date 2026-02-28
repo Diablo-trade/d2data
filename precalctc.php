@@ -73,14 +73,12 @@ foreach ([
 
       usort($precalc[$playermod], fn ($a, $b) => $b[1] <=> $a[1]);
 
-      if (isset($data['runs'])) {
-        $stats["$tc_name [$dropmodifier]"] = [
-          'total' => $data['runs'],
-          'elapsed' => $elapsed,
-        ];
+      $stats["$tc_name [$dropmodifier]"] = [
+        'total' => $data['runs'],
+        'elapsed' => $elapsed,
+      ];
 
-        print($data['runs'] . " in " . number_format($elapsed, 3) . " seconds" . PHP_EOL);
-      }
+      print($data['runs'] . " in " . number_format($elapsed, 3) . " seconds" . PHP_EOL);
     }
 
     file_put_contents($statsfile, json_encode((object) $stats, JSON_PRETTY_PRINT));
