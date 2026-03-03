@@ -621,8 +621,11 @@ int main(int argc, char* argv[]) {
     std::vector<ThreadStorage> threadStorage(thread_count);
     populate(tcname, 0, 0, 0, 0, dropsToFind);
 
+    // The current time in seconds
+    std::time_t currentTime = std::time(nullptr);
+
     for (size_t i = 0; i < thread_count; i++) {
-        threads.emplace_back([i, thread_count, &tcname, &dropsToFind, mindropcount, &threadStorage]() {
+        threads.emplace_back([i, thread_count, &tcname, &dropsToFind, mindropcount, &threadStorage, &currentTime]() {
             std::random_device rd;
             std::mt19937 gen(rd());
 
@@ -647,12 +650,21 @@ int main(int argc, char* argv[]) {
                 if (threadStorage[i].totalsims >= 100000 && threadStorage[i].totalsims % 1000 == 0) {
                     allAboveMin = true;
 
-                    for (const auto& drop : threadStorage[i].totaldrops) {
-                        long dropsLeft = mindropcount - drop.second;
+                    // Elapsed time in seconds
+                    std::time_t elapsedTime = std::time(nullptr) - currentTime;
 
-                        if (dropsLeft > 0 && drop.second > 0 || drop.second == 0 && threadStorage[i].totalsims < 1000000) {
-                            allAboveMin = false;
-                            break;
+                    if (elapsedTime < 120) {
+                        for (const auto& drop : threadStorage[i].totaldrops) {
+                            long dropsLeft = mindropcount - drop.second;
+    
+                            if (dropsLeft > 0 && drop.second > 0 || drop.second == 0 && threadStorage[i].totalsims < 1000000) {
+                                if (threadStorage[i].totalsims % 200000 == 0) {
+                                    std::string msg = "Thread " + std::to_string(i) + ": " + drop.first.name + " needs " + std::to_string(dropsLeft) + " (" + std::to_string(elapsedTime) + " seconds elapsed)\n";
+                                    std::cerr << msg;
+                                }
+                                allAboveMin = false;
+                                break;
+                            }
                         }
                     }
                 }
