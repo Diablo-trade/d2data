@@ -10,6 +10,9 @@ dropsolver
 dropsolverbase
 dropsolver.exe
 dropsolver.pdb
+test
+test.exe
+test.pdb
 *.txt
 !atomic.txt
 !atomicbase.txt
