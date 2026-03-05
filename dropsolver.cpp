@@ -584,7 +584,7 @@ int main(int argc, char* argv[]) {
     if (argc >= 4) {
         finditem = atoi(argv[3]);
     }
-    
+
     if (argc >= 5) {
         difficulty = atoi(argv[4]);
     }
@@ -655,7 +655,7 @@ int main(int argc, char* argv[]) {
             int probIdx = itemIdx + 1;
 
             if (itemIdx >= 0 && probIdx < tokens.size() && tokens[itemIdx][0] != '\0' && tokens[probIdx][0] != '\0') {
-                tc.items[i].name = tokens[itemIdx];
+                tc.items[i].name = trim(tokens[itemIdx]);
                 tc.items[i].prob = atoi(tokens[probIdx].c_str());
                 tc.total += tc.items[i].prob;
             }
@@ -731,7 +731,7 @@ int main(int argc, char* argv[]) {
         atomic[tcBaseName] = atc;
 
         for (long i = 1; i < tokens.size() - 1; i += 2) {
-            std::string itemName = tokens[i];
+            std::string itemName = trim(tokens[i]);
             int itemProb = atoi(tokens[i + 1].c_str());
 
             atomic[tcBaseName].items.push_back({ itemName, itemProb });
