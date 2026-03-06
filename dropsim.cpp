@@ -94,13 +94,17 @@ namespace std {
     template <>
     struct hash<Drop> {
         std::size_t operator()(const Drop& d) const {
-            std::size_t h1 = std::hash<std::string>()(d.name);
-            std::size_t h2 = std::hash<int>()(d.magic);
-            std::size_t h3 = std::hash<int>()(d.rare);
-            std::size_t h4 = std::hash<int>()(d.set);
-            std::size_t h5 = std::hash<int>()(d.unique);
-            
-            return h1 ^ (h2 << 1) ^ (h3 << 2) ^ (h4 << 3) ^ (h5 << 4);
+            std::size_t h = std::hash<std::string>()(d.name);
+            // FNV-1a style mixing for better distribution
+            h ^= d.magic;
+            h *= 0x100000001b3;
+            h ^= d.rare;
+            h *= 0x100000001b3;
+            h ^= d.set;
+            h *= 0x100000001b3;
+            h ^= d.unique;
+            h *= 0x100000001b3;
+            return h;
         }
     };
 }
@@ -168,7 +172,7 @@ void pickAtomic(std::mt19937& gen, std::string tcname, int magic, int rare, int 
     std::uniform_int_distribution<> dis(0, atc.total - 1);
     int picknum = dis(gen);
 
-    for (auto item : atc.items) {
+    for (const auto& item : atc.items) {
         if (item.prob > 0 && picknum < item.prob) {
             drops.push_back({item.name, magic, rare, set, unique});
             #ifdef DEBUG
@@ -269,7 +273,7 @@ void pick(std::mt19937& gen, std::string tcname, int magic, int rare, int set, i
                 continue;
             }
 
-            for (auto item : tc.items) {
+            for (const auto& item : tc.items) {
                 if (item.prob > 0) {
                     if (picknum < item.prob) {
                         #ifdef DEBUG
@@ -292,7 +296,7 @@ void pick(std::mt19937& gen, std::string tcname, int magic, int rare, int set, i
         }
     }
     else {
-        for (auto item : tc.items) {
+        for (const auto& item : tc.items) {
             for (int i = 0; i < item.prob; i++) {
                 if (picks <= 0) {
                     #ifdef DEBUG
@@ -330,7 +334,7 @@ void populateAtomic(std::string tcname, int magic, int rare, int set, int unique
         return;
     }
 
-    for (auto item : atc.items) {
+    for (const auto& item : atc.items) {
         if (item.prob > 0) {
             drops[{item.name, magic, rare, set, unique}] = 0;
         }
@@ -359,7 +363,7 @@ void populate(std::string tcname, int magic, int rare, int set, int unique, std:
     }
 
     if (tc.picks > 0) {
-        for (auto item : tc.items) {
+        for (const auto& item : tc.items) {
             if (item.prob > 0) {
                 populate(item.name, magic, rare, set, unique, drops);
             }
@@ -368,7 +372,7 @@ void populate(std::string tcname, int magic, int rare, int set, int unique, std:
     else {
         int picks = -tc.picks;
 
-        for (auto item : tc.items) {
+        for (const auto& item : tc.items) {
             for (int i = 0; i < item.prob; i++) {
                 if (picks <= 0) {
                     return;
@@ -607,11 +611,7 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    long mindropcount = 700;
-
-    if (argc >= 5) {
-        mindropcount = atoi(argv[4]);
-    }
+    long mindropcount = 2500;
 
     mindropcount = std::max(1L, mindropcount);
     mindropcount /= thread_count;
@@ -634,20 +634,23 @@ int main(int argc, char* argv[]) {
             }
 
             bool allAboveMin = false;
+            std::vector<Drop> rundrops;
+            rundrops.reserve(6); // Pre-allocate for typical max drops
 
             while (!allAboveMin) {
-                std::vector<Drop> rundrops;
+                rundrops.clear();
                 pick(gen, tcname, 0, 0, 0, 0, rundrops);
 
+                threadStorage[i].totalpicks += rundrops.size();
                 for (const auto& drop : rundrops) {
                     threadStorage[i].totaldrops[drop]++;
-                    threadStorage[i].totalpicks++;
                 }
 
                 threadStorage[i].totalsims++;
 
                 // Check if all items have at least mindropcount drops, and if so, break the loop to finish this thread's execution.
-                if (threadStorage[i].totalsims >= 100000 && threadStorage[i].totalsims % 1000 == 0) {
+                // Reduce check frequency to every 5000 iterations after 100k for better performance
+                if (threadStorage[i].totalsims >= 100000 && threadStorage[i].totalsims % 100000 == 0) {
                     allAboveMin = true;
 
                     // Elapsed time in seconds
@@ -657,10 +660,9 @@ int main(int argc, char* argv[]) {
                         for (const auto& drop : threadStorage[i].totaldrops) {
                             long dropsLeft = mindropcount - drop.second;
     
-                            if (dropsLeft > 0 && drop.second > 0 || drop.second == 0 && threadStorage[i].totalsims < 1000000) {
+                            if ((dropsLeft > 0 && drop.second > 0) || (drop.second == 0 && threadStorage[i].totalsims < 1000000)) {
                                 if (threadStorage[i].totalsims % 200000 == 0) {
-                                    std::string msg = "Thread " + std::to_string(i) + ": " + drop.first.name + " needs " + std::to_string(dropsLeft) + " (" + std::to_string(elapsedTime) + " seconds elapsed)\n";
-                                    std::cerr << msg;
+                                    std::cerr << "Thread " << i << ": " << drop.first.name << " needs " << dropsLeft << " (" << elapsedTime << " seconds elapsed)\n";
                                 }
                                 allAboveMin = false;
                                 break;
