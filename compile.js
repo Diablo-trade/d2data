@@ -548,7 +548,7 @@ const fs = require('fs');
               )
             );
           }, 0),
-          monucount = avg(l(s("MonUMin")), l(s("MonUMax"))) + 0.4, // The bonus here comes from champions spawn last, overcapping the spawns. Theoretically 80% of the time the last spawns as a unique, 20% of the time the last spawns as a champ giving +2 to the max. So: ucount = 0.8x * 0.2(x + 2) = x + 0.4
+          monucount = avg(l(s("MonUMin")), l(s("MonUMax"))) + 0.52, // The bonus here comes from champions spawn last, overcapping the spawns.
           ucount = monucount * uniqueRatio * uniqueCount,
           ccount = 0;
   
